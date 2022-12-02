@@ -254,7 +254,7 @@ begin
 -- Halt SignExt Jump Jal JReg RegDst RegWrite Branch MemToReg MemRead MemWrite ALUSrc 
 ---------------------------------------------------------------------------
 controlUnit1: controlUnit
-  port MAP(instr          => iInstExt,
+  port MAP(instr          => s_Inst,
 	   controlOut     => s_control);
 
 s_rs <= s_Inst(25 downto 21);
@@ -292,7 +292,7 @@ mux2t1_2: mux2t1_N
 fetchUnit0: fetchUnit
   port MAP(iCLK          => iCLK,
 	   jAddr         => s_rsVal(25 downto 0),
-           pcIn          => s_IMemAddr, --Unsure about this
+           pcIn          => s_NextInstAddr, -- *Fixed?
            branchAddr    => s_immExt,
            branchEnable  => s_control(14), -- BrEn control
            jumpDisable   => s_control(19), -- Jump control
@@ -340,10 +340,13 @@ ALU: upgradedALU
            ALUCtrl	  => s_control(9 downto 0),
            i_A	          => s_rsVal,
            i_B 	          => s_srcB,
-           o_Result	  => s_DMemAddr,  -- Results -> DMem
+           o_Result	  => oALUOut,  -- Results -> DMem
            o_Carry        => s_Carry,
            o_Overflow     => s_Ovfl,      -- Signal was provided.
            o_Zero         => s_Zero);
+
+-- Write to o_Result to s_DMemAddr, too
+s_DMemAddr <= oALUOut;
 
 ---------------------------------------------------------------------------
 -- Level 5: Mux4 (MemToReg)

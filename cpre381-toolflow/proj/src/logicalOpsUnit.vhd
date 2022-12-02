@@ -160,7 +160,7 @@ LUI1: LUI
    s_SLT    when "101",
    s_replqb when "110",
    s_LUI    when "111",
-   "1111111111111" when others;
+   "12345678" when others;
 
 
 end mixed;

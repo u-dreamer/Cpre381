@@ -126,7 +126,7 @@ branchUnit1: branchUnit
    s_Sum              when "00", 
    s_barrelOut        when "01",
    s_logicOut         when "10",
-   "1111111111111" when others;
+   "12345678" when others;
 
 end mixed;
 

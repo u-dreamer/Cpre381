@@ -3,13 +3,35 @@
 # flow instructions and has a call depth of at least 5 (i.e., the number of activation records 
 # on the stack is at least 4).
 
+# Required control flow instructions:
+# branching: bne, beq
+# jumping: jr, jal, j                           
+
 # data section
 .data
 
 # code/instruction section
 .text
 
-addi  $1,  $0,  1 		# Place “1” in $1
+
+# I think I want to make a loop for bne/beq,
+# I will also need to figure out what address(es) I want to jump to (jr) and when to use jal
+
+addi  $4,  $0,  5 		# Place “5” in $4/$a0
+addi  $5,  $0,  0		# Place "0" in $5/$a1
+j beqLoop			# Jump to beqLoop addr.
+
+
+#Should loop until $4 = 0, then branch to bneLoop
+beqLoop:
+beq   $4,  $5,  bneLoop		# If $4 = 0, branch to bneLoop
+addi  $8,  $8,  1	 	# Arbitrarily add 1 to $8/$t0
+
+
+
+bneLoop:
+ 
+
 addi  $2,  $0,  2		# Place “2” in $2
 addi  $3,  $0,  3		# Place “3” in $3
 addi  $4,  $0,  4		# Place “4” in $4
