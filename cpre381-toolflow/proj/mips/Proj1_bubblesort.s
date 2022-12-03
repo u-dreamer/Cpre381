@@ -8,6 +8,35 @@
 # code/instruction section
 .text
 
+
+#$s0 = $16
+#$s1 = $17
+#$s2 = $18
+#$s3 = $19
+#$t0 = $8
+#$t1 = $9
+#$t2 = $10
+
+# WHILE LOOP (optimized):
+# 	j Cond			# go to Cond
+# Loop: addu $16, $1, $17	# $16 = $1 + $17
+# Cond: sll  $8, $16, 2		# if $16 < 2, then $8 = 1
+#       addu $9, $8, $19	# $9 = $8 + $19
+#       lw $10, 0($9)		# $10 = $9
+#       beq $10, $18, Loop	# if $10 = $18
+# Exit:
+
+# WHILE LOOP (unoptimized):
+# Loop:	sll $8, $16, 2		# $8 = $16 << 2 
+
+sll   $2,  $2,  $3		# $2 = 10 << 1  =  20
+
+#	addu $9, $8, $19	# $9 = $8 + $19
+#	lw $10, 0($9)		# $10 = $9
+# 	bne $10, $18, Exit	# if $10 = $18, then Exit
+# 	addu $16, $16, $17	# $16 = $16 + $17
+# 	j Loop			# go to Loop
+
 addi  $1,  $0,  1 		# Place “1” in $1
 addi  $2,  $0,  2		# Place “2” in $2
 addi  $3,  $0,  3		# Place “3” in $3

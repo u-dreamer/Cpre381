@@ -5,36 +5,66 @@
 # of  many  instructions  executed  sequentially,  1  per  cycle  while  data  written  into 
 # registers  can  be  effectively  retrieved  and  used  by  later  instructions)
 
-
-# Where's that document where it was easy to see which instrs were arithmetic/logical instrs? 
-
-
 # data section
 .data
 
 # code/instruction section
 .text
 
-addi  $1,  $0,  1 		# Place “1” in $1
-addi  $2,  $0,  2		# Place “2” in $2
-addi  $3,  $0,  3		# Place “3” in $3
-addi  $4,  $0,  4		# Place “4” in $4
-addi  $5,  $0,  5		# Place “5” in $5
-addi  $6,  $0,  6		# Place “6” in $6
-addi  $7,  $0,  7		# Place “7” in $7
-addi  $8,  $0,  8		# Place “8” in $8
-addi  $9,  $0,  9		# Place “9” in $9
-addi  $10, $0,  10		# Place “10” in $10
-add   $11, $1,  $2		# $11 = $1 + $2
-sub   $12, $11, $3 		# $12 = $11 - $3
-add   $13, $12, $4		# $13 = $12 + $4
-sub   $14, $13, $5		# $14 = $13 - $5
-add   $15, $14, $6		# $15 = $14 + $6
-sub   $16, $15, $7		# $16 = $15 - $7
-add   $17, $16, $8		# $17 = $16 + $8
-sub   $18, $17, $9		# $18 = $17 - $9
-add   $19, $18, $10 		# $19 = $18 + $10
-addi  $20, $0,  35		# Place “35” in $20
-add   $21, $19, $20	 	# $21 = $19 + $20
+# add!/addi!
+# addu!/addiu!
+
+# sub!
+# subu!
+
+# (not & nor)!
+
+# xor!/xori!
+
+# and!/andi!
+# or!/ori!
+
+# sll!
+# srl!
+# sra!
+
+# lui!
+
+# slt!/slti!
+
+# repl.qb!
+
+# -----------------
+
+addi  $1,  $0,  1 		# $1 = 0 + 1  =  1
+addiu $2,  $1,  1		# $2 = 1 + 1  =  2
+add   $1,  $1,  $2		# $1 = 1 + 2  =  3
+addu  $2,  $1,  $2		# $2 = 3 + 2  =  5
+
+sub   $2,  $2,  $1		# $2 = 5 - 3  =  2
+subu  $1,  $1,  $1		# $1 = 3 - 3  =  0
+
+nor   $1,  $1,  $2		# $1 = ~(0 | 2)  =  1
+
+xori  $2,  $1,  10		# $2 = 1 ^ 10  =  11
+xor   $1,  $1,  $2		# $1 = 1 ^ 11  =  10
+
+andi  $2,  $2,  6		# $2 = 11 & 6  =  2
+and   $1,  $2,  $1		# $1 = 2 & 10  =  2
+
+ori   $2,  $2,  8		# $2 = 2 | 8  =  10
+or    $1,  $1,  $2		# $1 = 2 | 10 =  10
+
+addi  $3,  $0,  1		# $3 = 0 + 1  =  1
+sll   $2,  $2,  $3		# $2 = 10 << 1  =  20
+srl   $1,  $1,  $3		# $1 = 10 >> 1  =  5
+sra   $1,  $1,  $3		# $1 = 5 >> 1   =  2
+
+lui   $2, 5			# $2 = 5
+
+slt   $1, $1, $2		# 2 < 5 = true, so  $1  = 1
+slti  $2, $2, 3			# 5 < 3 = false, so $2 = 0
+
+REPL.QB $2, 1			# $2 = 0001 0001 | 0001 0001 | 0001 0001 | 0001 0001  =  286331153 (0xFF)
 
 halt
