@@ -5,6 +5,10 @@
 # of  many  instructions  executed  sequentially,  1  per  cycle  while  data  written  into 
 # registers  can  be  effectively  retrieved  and  used  by  later  instructions)
 
+
+# Where's that document where it was easy to see which instrs were arithmetic/logical instrs? 
+
+
 # data section
 .data
 
