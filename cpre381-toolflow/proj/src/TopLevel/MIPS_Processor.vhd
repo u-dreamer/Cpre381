@@ -158,11 +158,11 @@ component mux2t1_6 is
        F_OUT        : out std_logic_vector(N-1 downto 0));
 end component;
 
--- 32-Bit AND Gate
-component andg_N is
-  port(i_A 	    : in std_logic_vector(N-1 downto 0);
-       i_B	    : in std_logic_vector(N-1 downto 0);
-       o_F	    : out std_logic_vector(N-1 downto 0));
+-- 1-Bit AND Gate
+component andg2 is
+  port(i_A 	    : in std_logic;
+       i_B	    : in std_logic;
+       o_F	    : out std_logic);
 end component;
 
 --- SIGNALS ---------------------------------------------------------------
@@ -186,6 +186,7 @@ signal s_srcB       : std_logic_vector(N-1 downto 0);
 signal s_pcPlusFour : std_logic_vector(N-1 downto 0);
 signal s_wrData     : std_logic_vector(N-1 downto 0); -- Intermediate signal to determine RegWrData
 signal s_pcOut	    : std_logic_vector(N-1 downto 0); -- Signal used to give pcOut from fetchUnit to PC
+signal s_BrEn 	    : std_logic;
 
 -- ALU Signals
 signal s_Carry      : std_logic;
@@ -227,17 +228,6 @@ begin
   -- TODO: Ensure that s_Ovfl is connected to the overflow output of your ALU
 
   -- TODO: Implement the rest of your processor below this comment! 
-
-
----------------------------------------------------------------------------
--- Level 0: PC **FIXME**
----------------------------------------------------------------------------
---ProcessCounter: PC
---port MAP(i_CLK           => iCLK,
---         i_RST           => iRST,
---         i_WE            => '1',
---         i_D             => s_pcOut,
---         o_Q   	   => s_NextInstAddr);
 
 ---------------------------------------------------------------------------
 -- Level 1: Control Unit / Fetch Unit
@@ -286,6 +276,12 @@ mux2t1_2: mux2t1_N
            D1             => s_pcPlusFour,
            F_OUT          => s_RegWrData);  -- Select write data
 
+g_andg: andg2
+  port MAP(i_A            => s_control(14), -- BrEn control
+           i_B	          => s_Zero,
+           o_F	          => s_BrEn);
+
+
 fetchUnit0: fetchUnit
   port MAP(iClk          => iCLK,
 	   iRst		 => iRST,
@@ -293,7 +289,7 @@ fetchUnit0: fetchUnit
 	   jAddr         => s_rsVal(25 downto 0),
            pcIn          => s_NextInstAddr, -- *Fixed?
            branchAddr    => s_immExt,
-           branchEnable  => s_control(14), -- BrEn control
+           branchEnable  => s_BrEn,
            jumpDisable   => s_control(19), -- Jump control
            jrAddr	 => s_rsVal,
            jrEn          => s_control(17), -- Jr control
@@ -330,6 +326,7 @@ mux2t1_3: mux2t1_N
            F_OUT          => s_srcB);  -- Select write data
 
 --s_RegWrData <= s_rtVal;
+s_DMemData <= s_rtVal;
 
 ---------------------------------------------------------------------------
 -- Level 5: ALU
