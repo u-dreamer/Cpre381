@@ -22,7 +22,7 @@ entity MIPS_Reg_File1 is
 	i_RST     : in std_logic;
 	WE        : in std_logic;
 	i_D       : in std_logic_vector(N-1 downto 0);
-        rd 	  : in std_logic_vector(X-1 downto 0);
+        WriteReg  : in std_logic_vector(X-1 downto 0);
 	rs 	  : in std_logic_vector(X-1 downto 0);
   	rt        : in std_logic_vector(X-1 downto 0);
 	rs_val    : out std_logic_vector(N-1 downto 0);
@@ -134,8 +134,11 @@ begin
 ---------------------------------------------------------------------------
 -- Level 0: Load 5 bits of rd into 5to32decoder
 ---------------------------------------------------------------------------
+-- Need to be able to write to rd AND rt
+
+
 g_5to32decoder: decoder5to32
-  port MAP( D_IN  => rd,
+  port MAP( D_IN  => WriteReg,
  	    F_OUT => dec_out);
 
 ---------------------------------------------------------------------------
