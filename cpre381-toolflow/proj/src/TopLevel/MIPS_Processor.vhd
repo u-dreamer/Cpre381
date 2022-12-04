@@ -75,21 +75,13 @@ architecture structure of MIPS_Processor is
 
 -- Component Declaration ------------------------------------------------
 
--- PC
---component PC is
---  generic(N : integer := 32);
---  port(i_CLK        : in std_logic;
---       i_RST        : in std_logic;
---       i_WE         : in std_logic;
---      i_D          : in  std_logic_vector(N-1 downto 0);
---      o_Q   	    : out std_logic_vector(N-1 downto 0));
---end component;
-
 -- Fetch Unit
 component fetchUnit is
   generic(N : integer := 32;
           I : integer := 26);
-  port ( iCLK         : in std_logic;
+  port ( iClk         : in std_logic;
+	 iRst	      : in std_logic;
+	 iWE	      : in std_logic;
          jAddr        : in std_logic_vector(I-1 downto 0);
          pcIn         : in std_logic_vector(N-1 downto 0);
 	 branchAddr   : in std_logic_vector(N-1 downto 0);
@@ -109,7 +101,7 @@ component MIPS_Reg_File1 is
 	i_RST     : in std_logic;
 	WE        : in std_logic;
 	i_D       : in std_logic_vector(N-1 downto 0);
-        rd 	  : in std_logic_vector(X-1 downto 0);
+        WriteReg  : in std_logic_vector(X-1 downto 0);
 	rs 	  : in std_logic_vector(X-1 downto 0);
   	rt        : in std_logic_vector(X-1 downto 0);
 	rs_val    : out std_logic_vector(N-1 downto 0);
@@ -193,6 +185,7 @@ signal s_immExt     : std_logic_vector(N-1 downto 0);
 signal s_srcB       : std_logic_vector(N-1 downto 0);
 signal s_pcPlusFour : std_logic_vector(N-1 downto 0);
 signal s_wrData     : std_logic_vector(N-1 downto 0); -- Intermediate signal to determine RegWrData
+signal s_pcOut	    : std_logic_vector(N-1 downto 0); -- Signal used to give pcOut from fetchUnit to PC
 
 -- ALU Signals
 signal s_Carry      : std_logic;
@@ -237,14 +230,14 @@ begin
 
 
 ---------------------------------------------------------------------------
--- Level 0: PC
+-- Level 0: PC **FIXME**
 ---------------------------------------------------------------------------
 --ProcessCounter: PC
 --port MAP(i_CLK           => iCLK,
 --         i_RST           => iRST,
---         i_WE            => iInstLd,
- --        i_D             => iInstAddr,
- --        o_Q   	         => iInstData);
+--         i_WE            => '1',
+--         i_D             => s_pcOut,
+--         o_Q   	   => s_NextInstAddr);
 
 ---------------------------------------------------------------------------
 -- Level 1: Control Unit / Fetch Unit
@@ -261,11 +254,15 @@ s_rs <= s_Inst(25 downto 21);
 s_rt <= s_Inst(20 downto 16);
 s_rd <= s_Inst(15 downto 11);
 
+
 -- TODO: use this signal as the final active high write enable input to the register file
 s_RegWr  <= s_control(15); -- Assign as value from control unit output
 
 -- Assign Memory Control Signals
 s_DMemWr <= s_control(11);
+
+-- Assign s_Halt
+s_Halt <= s_control(21);
  
 
 ---------------------------------------------------------------------------
@@ -284,13 +281,15 @@ mux2t1_6_1: mux2t1_6
            F_OUT          => s_RegWrAddr);  -- Writes final WrAddr to Reg
 
 mux2t1_2: mux2t1_N
-  port MAP(i_S            => s_control(18), -- JAL Bit
-           D0             => s_pcPlusFour,
-           D1             => s_wrData,
+  port MAP(i_S            => s_control(18), -- JAL Bit -> Picks b/w linked addr. and wrData
+           D0             => s_wrData,
+           D1             => s_pcPlusFour,
            F_OUT          => s_RegWrData);  -- Select write data
 
 fetchUnit0: fetchUnit
-  port MAP(iCLK          => iCLK,
+  port MAP(iClk          => iCLK,
+	   iRst		 => iRST,
+	   iWE		 => '1',
 	   jAddr         => s_rsVal(25 downto 0),
            pcIn          => s_NextInstAddr, -- *Fixed?
            branchAddr    => s_immExt,
@@ -310,7 +309,7 @@ RegisterFile: MIPS_Reg_File1
 	   i_RST         => iRST,
 	   WE            => s_RegWr,
 	   i_D           => s_RegWrData,
-           rd 	         => s_rd,
+           WriteReg      => s_RegWrAddr,
 	   rs 	         => s_rs,
   	   rt            => s_rt,
 	   rs_val        => s_rsVal,
@@ -330,7 +329,7 @@ mux2t1_3: mux2t1_N
            D1             => s_immExt,
            F_OUT          => s_srcB);  -- Select write data
 
-s_RegWrData <= s_rtVal;
+--s_RegWrData <= s_rtVal;
 
 ---------------------------------------------------------------------------
 -- Level 5: ALU
@@ -340,7 +339,7 @@ ALU: upgradedALU
            ALUCtrl	  => s_control(9 downto 0),
            i_A	          => s_rsVal,
            i_B 	          => s_srcB,
-           o_Result	  => oALUOut,  -- Results -> DMem
+           o_Result	  => oALUOut,     -- Fixed!*
            o_Carry        => s_Carry,
            o_Overflow     => s_Ovfl,      -- Signal was provided.
            o_Zero         => s_Zero);
