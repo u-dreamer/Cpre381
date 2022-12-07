@@ -281,12 +281,11 @@ g_andg: andg2
            i_B	          => s_Zero,
            o_F	          => s_BrEn);
 
-
 fetchUnit0: fetchUnit
   port MAP(iClk          => iCLK,
 	   iRst		 => iRST,
 	   iWE		 => '1',
-	   jAddr         => s_rsVal(25 downto 0),
+	   jAddr         => s_Inst(25 downto 0),
            pcIn          => s_NextInstAddr, -- *Fixed?
            branchAddr    => s_immExt,
            branchEnable  => s_BrEn,
