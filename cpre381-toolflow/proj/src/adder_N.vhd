@@ -30,7 +30,7 @@ architecture structural of adder_N is
          o_C    : out std_logic);
   end component;
 
-  signal s_C      : std_logic_vector(N-2 downto 0);
+  signal s_C      : std_logic_vector(N-1 downto 0);
 
 begin
 
@@ -60,8 +60,10 @@ begin
              i_A   => i_A(N-1),
              i_B   => i_B(N-1),
              i_C   => s_C(N-2),
-             o_C   => o_C,
+             o_C   => s_C(N-1),
              o_S   => o_S(N-1));
+
+o_C <= s_C(N-2) xor s_C(N-1);
 
 end structural;
     
